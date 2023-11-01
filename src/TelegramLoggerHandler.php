@@ -80,7 +80,11 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
                 }
             }
         }
-        $this->telegramService->sendMessage($this->formatLogText($record));
+
+        try {
+            $this->telegramService->sendMessage($this->formatLogText($record));
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -99,8 +103,8 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
         $data['URL'] = request()->url();
 
         if ($this->logRequestData) {
-            $data['Request query'] = json_encode(Request::query());
-            $data['Request body'] = json_encode(Request::post());
+            $data['Request query'] = json_encode(Request::query(), JSON_UNESCAPED_UNICODE);
+            $data['Request body'] = json_encode(Request::post(), JSON_UNESCAPED_UNICODE);
         }
 
 
@@ -109,7 +113,7 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
         $data['Message'] = '<pre>' . ($record['message'] ?? '') . '</pre>';
 
         if (!empty($record['extra'])) {
-            $data['Extra'] .= '<code>' . json_encode($record['extra']) . '</code>';
+            $data['Extra'] .= '<code>' . json_encode($record['extra'], JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
 
@@ -118,6 +122,16 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             /** @var \Exception $exception */
 
             $data['Trace exception'] = $exception->getTraceAsString();
+            $record['context']['exception'] = [
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'code' => $exception->getCode(),
+                'message' => $exception->getMessage(),
+            ];
+        }
+
+        if (!empty($record['context'])) {
+            $data['Context'] = '<code>' . json_encode($record['context'], JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
         $logText = '';
