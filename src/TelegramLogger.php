@@ -1,13 +1,13 @@
 <?php
 
-namespace RLaurindo\TelegramLogger;
+namespace redrum0x\TelegramLogger;
 
 use Monolog\Logger;
 
 /**
  * Class TelegramLogger
  *
- * @package RLaurindo\TelegramLogger
+ * @package redrum0x\TelegramLogger
  */
 class TelegramLogger
 {

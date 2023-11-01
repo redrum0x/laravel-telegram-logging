@@ -2,22 +2,21 @@
 
 Send Laravel logs to a Telegram chat via Telegram Bot.
 
-[![Total Downloads](https://poser.pugx.org/rafaellaurindo/laravel-telegram-logging/downloads)](//packagist.org/packages/rafaellaurindo/laravel-telegram-logging)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LUAC5W7GF2BVW&source=url)
-[![license](https://img.shields.io/github/license/rafaellaurindo/laravel-telegram-logging.svg)](https://github.com/rafaellaurindo/laravel-telegram-logging/blob/master/LICENSE)
+[![Total Downloads](https://poser.pugx.org/redrum0x/laravel-telegram-logging/downloads)](//packagist.org/packages/redrum0x/laravel-telegram-logging)
+[![license](https://img.shields.io/github/license/redrum0x/laravel-telegram-logging.svg)](https://github.com/redrum0x/laravel-telegram-logging/blob/master/LICENSE)
 
 ## Installation
 
 To install the package you can use [Composer](https://getcomposer.org/).
 
 ```bash
-composer require rafaellaurindo/laravel-telegram-logging
+composer require redrum0x/laravel-telegram-logging
 ```
 
 Publish the package configuration file using the following artisan command:
 
 ```bash
-php artisan vendor:publish --provider "RLaurindo\TelegramLogger\TelegramLoggerServiceProvider"
+php artisan vendor:publish --provider "redrum0x\TelegramLogger\TelegramLoggerServiceProvider"
 ```
 
 To send messages to your Telegram Chat, you first need a Telegram Bot. If you don't have one, see in this [Telegram Instructions](TELEGRAM_BOT_INSTRUCTIONS.md) how to create one.
@@ -27,8 +26,8 @@ Set your Bot Token and chat_id (user, channel or group that will receive log mes
 Add in your **.env**, the follows variables:
 
 ```bash
-TELEGRAM_BOT_TOKEN=bot_token
-TELEGRAM_CHAT_ID=chat_id
+TELEGRAM_LOGGING_BOT_TOKEN=bot_token
+TELEGRAM_LOGGING_CHAT_ID=chat_id
 ```
 
 ## Usage
@@ -38,7 +37,7 @@ Add the new Log Channel in **config/logging.php**:
 ```php
 'telegram' => [
     'driver' => 'custom',
-    'via'    => RLaurindo\TelegramLogger\TelegramLogger::class,
+    'via'    => redrum0x\TelegramLogger\TelegramLogger::class,
     'level'  => 'debug',
 ]
 ```
@@ -90,14 +89,6 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## Donations are welcome
-
-If this project help you reduce time to develop, you can give me a cup of coffee :)
-
-Donate with Paypal:
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LUAC5W7GF2BVW&source=url)
-
 ## License
 
-[MIT](https://github.com/rafaellaurindo/laravel-telegram-logging/blob/master/LICENSE)
+[MIT](https://github.com/redrum0x/laravel-telegram-logging/blob/master/LICENSE)
