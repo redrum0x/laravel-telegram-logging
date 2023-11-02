@@ -44,4 +44,9 @@ return [
      * ignore messages starts with
      */
     'ignore_messages' => env('TELEGRAM_LOGGER_IGNORE_MESSAGES', ''),
+
+    /**
+     * ignore context text contains
+     */
+    'ignore_context' => env('TELEGRAM_LOGGER_IGNORE_CONTEXT', ''),
 ];

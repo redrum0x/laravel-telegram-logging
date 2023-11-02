@@ -40,6 +40,7 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
     private $logRequestData = false;
     private $logTraceException = false;
     private $ignoreMessages = [];
+    private $ignoreContext = [];
 
     /**
      * TelegramHandler constructor.
@@ -60,6 +61,11 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             $this->ignoreMessages = explode(',', $ignoreMessages);
         }
 
+        $ignoreContext = config('telegram-logger.ignore_context');
+        if (!empty($ignoreContext)) {
+            $this->ignoreContext = explode(',', $ignoreContext);
+        }
+
         $this->telegramService = new TelegramService(config('telegram-logger.bot_token'),
             config('telegram-logger.chat_id'), config('telegram-logger.base_url'));
     }
@@ -72,28 +78,39 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        if (!empty($this->ignoreMessages) && !empty($record['message'])) {
-            foreach ($this->ignoreMessages as $message) {
-                if (str_starts_with($record['message'], $message)) {
-                    return;
+        if (empty(config('telegram-logger.chat_id'))) {
+            return;
+        }
 
+        $data = $this->buildLogData($record);
+
+        if (!empty($this->ignoreMessages) && !empty($data['Message'])) {
+            foreach ($this->ignoreMessages as $message) {
+                if (str_starts_with($data['Message'], $message)) {
+                    return;
+                }
+            }
+        }
+
+        if (!empty($this->ignoreContext) && !empty($data['Context'])) {
+            foreach ($this->ignoreContext as $message) {
+                if (strpos($data['Context'], $message) !== false) {
+                    return;
                 }
             }
         }
 
         try {
-            $this->telegramService->sendMessage($this->formatLogText($record));
+            $this->telegramService->sendMessage($this->formatLogText($data));
         } catch (\Exception $e) {
         }
     }
 
     /**
-     * Formart log text to send
-     *
-     * @return string
-     * @var array $record
+     * @param array $record
+     * @return array
      */
-    protected function formatLogText(array $record): string
+    private function buildLogData(array $record): array
     {
         $data = [];
 
@@ -108,7 +125,7 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
         }
 
 
-        $data['IP'] = request()->ip();
+        $data['IP'] = $this->getIp();
         $data['ctx'] = self::getCtxByException();
         $data['Message'] = '<pre>' . ($record['message'] ?? '') . '</pre>';
 
@@ -134,6 +151,17 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             $data['Context'] = '<code>' . json_encode($record['context'], JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
+        return $data;
+    }
+
+    /**
+     * Formart log text to send
+     *
+     * @return string
+     * @var array $record
+     */
+    protected function formatLogText(array $data): string
+    {
         $logText = '';
         foreach ($data as $key => $item) {
             $name = '<b>' . $key . '</b>: ';
@@ -165,5 +193,17 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             }
         }
         return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getIp(): string
+    {
+        $userIp = $_SERVER['HTTP_CLIENT_IP'] ?? ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR']);
+        $userIp = str_replace(' ', '', $userIp);
+        $userIp = explode(',', $userIp);
+
+        return $userIp[0];
     }
 }
