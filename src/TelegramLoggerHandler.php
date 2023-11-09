@@ -200,7 +200,7 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
      */
     public function getIp(): string
     {
-        $userIp = $_SERVER['HTTP_CLIENT_IP'] ?? ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR']);
+        $userIp = $_SERVER['HTTP_CLIENT_IP'] ?? ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '');
         $userIp = str_replace(' ', '', $userIp);
         $userIp = explode(',', $userIp);
 
