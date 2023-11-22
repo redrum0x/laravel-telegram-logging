@@ -162,18 +162,25 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
      */
     protected function formatLogText(array $data): string
     {
+        $traceKey = 'Trace exception';
         $logText = '';
         foreach ($data as $key => $item) {
             $name = '<b>' . $key . '</b>: ';
-            if ($key === 'Trace exception') {
-                $maxSize = 4090 - strlen($logText . $name);
-                if ($maxSize > 0) {
-                    $item = mb_substr($item, 0, $maxSize);
-                }
+            if ($key === $traceKey) {
+                continue;
+
 
             }
             $logText .= $name . $item . PHP_EOL;
         }
+
+        $maxSize = 4090 - strlen($logText . '<b>' . $key . '</b>: ');
+        if ($maxSize > 0) {
+            $traceItem = $maxSize > 0 ? mb_substr($data[$traceKey], 0, $maxSize) : $data[$traceKey];
+        }
+
+        $logText .= '<b>' . $key . '</b>: ' . $traceItem . PHP_EOL;
+
 
         return $logText;
     }
