@@ -174,13 +174,11 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             $logText .= $name . $item . PHP_EOL;
         }
 
-        $maxSize = 4090 - strlen($logText . '<b>' . $key . '</b>: ');
-        if ($maxSize > 0) {
+        if (isset($data[$traceKey])) {
+            $maxSize = 4090 - strlen($logText . '<b>' . $traceKey . '</b>: ');
             $traceItem = $maxSize > 0 ? mb_substr($data[$traceKey], 0, $maxSize) : $data[$traceKey];
+            $logText .= '<b>' . $traceKey . '</b>: ' . $traceItem . PHP_EOL;
         }
-
-        $logText .= '<b>' . $key . '</b>: ' . $traceItem . PHP_EOL;
-
 
         return $logText;
     }
