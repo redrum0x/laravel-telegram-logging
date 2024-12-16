@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Monolog\LogRecord;
 use redrum0x\TelegramLogger\Services\TelegramService;
 
 /**
@@ -39,8 +40,8 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
 
     private $logRequestData = false;
     private $logTraceException = false;
-    private $ignoreMessages = [];
-    private $ignoreContext = [];
+    private array $ignoreMessages = [];
+    private array $ignoreContext = [];
 
     /**
      * TelegramHandler constructor.
@@ -73,10 +74,10 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
     /**
      * Send log text to Telegram
      *
-     * @param array $record
+     * @param LogRecord $record
      * @return void
      */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
         if (empty(config('telegram-logger.chat_id'))) {
             return;
@@ -94,7 +95,7 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
 
         if (!empty($this->ignoreContext) && !empty($data['Context'])) {
             foreach ($this->ignoreContext as $message) {
-                if (strpos($data['Context'], $message) !== false) {
+                if (str_contains($data['Context'], $message)) {
                     return;
                 }
             }
@@ -107,15 +108,15 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @param array $record
+     * @param LogRecord $record
      * @return array
      */
-    private function buildLogData(array $record): array
+    private function buildLogData(LogRecord $record): array
     {
         $data = [];
 
         $data['Application'] = $this->applicationName;
-        $data['Log Level'] = $record['level_name'];
+        $data['Log Level'] = $record->level->getName();
         $data['User id'] = Auth::user()?->getAuthIdentifier() ?? '-';
         $data['URL'] = request()->url();
 
@@ -127,19 +128,19 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
 
         $data['IP'] = $this->getIp();
         $data['ctx'] = self::getCtxByException();
-        $data['Message'] = '<pre>' . ($record['message'] ?? '') . '</pre>';
+        $data['Message'] = '<pre>' . ($record->message ?? '') . '</pre>';
 
-        if (!empty($record['extra'])) {
-            $data['Extra'] .= '<code>' . json_encode($record['extra'], JSON_UNESCAPED_UNICODE) . '</code>';
+        if (!empty($record->extra)) {
+            $data['Extra'] .= '<code>' . json_encode($record->extra, JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
 
-        if ($this->logTraceException && isset($record['context']['exception']) && $record['context']['exception'] instanceof \Exception) {
-            $exception = $record['context']['exception'];
+        if ($this->logTraceException && isset($record->context['exception']) && $record->context['exception'] instanceof \Exception) {
+            $exception = $record->context['exception'];
             /** @var \Exception $exception */
 
             $data['Trace exception'] = $exception->getTraceAsString();
-            $record['context']['exception'] = [
+            $record->extra['context']['exception'] = [
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'code' => $exception->getCode(),
@@ -147,15 +148,15 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             ];
         }
 
-        if (!empty($record['context'])) {
-            $data['Context'] = '<code>' . json_encode($record['context'], JSON_UNESCAPED_UNICODE) . '</code>';
+        if (!empty($record->extra['context'])) {
+            $data['Context'] = '<code>' . json_encode($record->extra['context'], JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
         return $data;
     }
 
     /**
-     * Formart log text to send
+     * Format log text to send
      *
      * @return string
      * @var array $record
