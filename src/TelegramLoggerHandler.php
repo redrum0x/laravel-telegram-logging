@@ -148,8 +148,8 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             ];
         }
 
-        if (!empty($record->extra['context'])) {
-            $data['Context'] = '<code>' . json_encode($record->extra['context'], JSON_UNESCAPED_UNICODE) . '</code>';
+        if (!empty($record->context)) {
+            $data['Context'] = '<code>' . json_encode($record->context, JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
         return $data;
