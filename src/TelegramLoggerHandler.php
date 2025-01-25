@@ -126,6 +126,7 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
         }
 
 
+        $data['Extra'] = '';
         $data['IP'] = $this->getIp();
         $data['ctx'] = self::getCtxByException();
         $data['Message'] = '<pre>' . ($record->message ?? '') . '</pre>';
@@ -150,6 +151,10 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
 
         if (!empty($record->context)) {
             $data['Context'] = '<code>' . json_encode($record->context, JSON_UNESCAPED_UNICODE) . '</code>';
+        }
+
+        if (!empty($record->extra)) {
+            $data['Extra'] .= '<code>' . json_encode($record->extra, JSON_UNESCAPED_UNICODE) . '</code>';
         }
 
         return $data;
