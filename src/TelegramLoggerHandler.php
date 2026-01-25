@@ -86,8 +86,9 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
         $data = $this->buildLogData($record);
 
         if (!empty($this->ignoreMessages) && !empty($data['Message'])) {
+            $logMessage = str_replace(['<pre>', '</pre>'], '', $data['Message']);
             foreach ($this->ignoreMessages as $message) {
-                if (str_starts_with($data['Message'], $message)) {
+                if (str_starts_with($logMessage, $message)) {
                     return;
                 }
             }
