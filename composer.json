@@ -4,6 +4,8 @@
   "homepage": "https://github.com/redrum0x/laravel-telegram-logging",
   "require": {
     "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-mbstring": "*",
     "laravel/framework": "^10.0|^11.0",
     "monolog/monolog": "3.*"
   },

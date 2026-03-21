@@ -36,6 +36,21 @@ return [
 
     'base_url' => env('TELEGRAM_BASE_URL', 'https://api.telegram.org/'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | PROXY
+    |--------------------------------------------------------------------------
+    |
+    | Defines a proxy server to use for Telegram API requests.
+    | Supports HTTP, HTTPS and SOCKS5 proxies.
+    |
+    | Examples:
+    |   HTTP/HTTPS proxy:  'http://user:password@proxy.example.com:8080'
+    |   SOCKS5 proxy:      'socks5://user:password@proxy.example.com:1080'
+    |
+     */
+
+    'proxy' => env('TELEGRAM_LOGGER_PROXY', null),
 
     'log_request_data' => env('TELEGRAM_LOGGER_LOG_REQUEST_DATA', true),
     'log_trace_exception' => env('TELEGRAM_LOGGER_LOG_TRACE_EXCEPTION', true),
